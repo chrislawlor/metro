@@ -7,7 +7,7 @@ from base64 import b64encode
 
 logger = logging.getLogger(__name__)
 
-SIZE = 50
+SIZE = 45
 BLACK = (0, 0, 0, 255)
 BACKGROUND = (10, 0, 10, 255)
 WHITE = (255, 255, 255, 255)
@@ -80,6 +80,16 @@ letter_offsets.update({
     "U": -3, "Û": -3, "Ü": -6, "Ù": -3, "Ú": -3, "Ū": -3,
     "W": -18,
     "Z": 8,
+    "1": 8,
+    "2": 8,
+    "3": 8,
+    "4": 6,
+    "5": 6,
+    "6": 8,
+    "7": 10,
+    "8": 8,
+    "9": 8,
+    "0": 10,
 })
 
 
@@ -107,7 +117,7 @@ def get_letter(letter, color=None, theme='nyc', background_color=BACKGROUND):
 def render_subject(subject, background_color=BACKGROUND):
     image = Image.new('RGBA', (12*SIZE, SIZE), color=background_color)
     draw = ImageDraw.Draw(image)
-    draw.text((10, 10), subject, font=helvetica_subject, fill=WHITE)
+    draw.text((8, 8), subject, font=helvetica_subject, fill=WHITE)
     return image
 
 
@@ -127,17 +137,18 @@ def combine_letters(images, background_color=BACKGROUND):
 
 
 def combine_rows(images, background_color=BACKGROUND):
+    X_OFFSET = 5
     logging.info(f"Combining {len(images)} rows")
     widths, heights = zip(*(i.size for i in images))
 
     total_width = max(widths)
     max_height = sum(heights)
 
-    new_im = Image.new('RGBA', (total_width, max_height), color=background_color)
+    new_im = Image.new('RGBA', (total_width + X_OFFSET * 2 + 4, max_height + 10), color=background_color)
 
     y_offset = 0
     for im in images:
-        new_im.paste(im, (0, y_offset))
+        new_im.paste(im, (X_OFFSET, y_offset))
         y_offset += im.size[1]
     return new_im
 
@@ -186,7 +197,6 @@ def to_img_tag(img):
     img.save(b, format='png')
     tag = "<img src='data:image/png;base64,{0}'/>".format(b64encode(b.getvalue()).decode('utf-8'))
     return tag
-
 
 
 def render_to_tag(subject, text, theme='nyc'):
