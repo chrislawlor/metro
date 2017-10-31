@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 SIZE = 50
 BLACK = (0, 0, 0, 255)
+BACKGROUND = (10, 0, 10, 255)
 WHITE = (255, 255, 255, 255)
 
 VIVID_BLUE = '#0039A6'
@@ -80,7 +81,7 @@ letter_offsets.update({
 })
 
 
-def get_letter(letter, color=None, theme='nyc', background_color=BLACK):
+def get_letter(letter, color=None, theme='nyc', background_color=BACKGROUND):
     m = 3  # multiplier
     offset = letter_offsets[letter] // 2
     font_color = WHITE
@@ -101,7 +102,7 @@ def get_letter(letter, color=None, theme='nyc', background_color=BLACK):
     return image
 
 
-def combine_letters(images, background_color=BLACK):
+def combine_letters(images, background_color=BACKGROUND):
     widths, heights = zip(*(i.size for i in images))
 
     total_width = sum(widths)
@@ -116,7 +117,7 @@ def combine_letters(images, background_color=BLACK):
     return new_im
 
 
-def combine_rows(images, background_color=BLACK):
+def combine_rows(images, background_color=BACKGROUND):
     logging.info(f"Combining {len(images)} rows")
     widths, heights = zip(*(i.size for i in images))
 
@@ -154,14 +155,13 @@ def text_to_rows(text, max_width):
             if spaces_remaining >= 1:
                 current_row += [' ']
                 spaces_remaining -= 1
-
-            if spaces_remaining == 0:
-                rows.append(current_row.copy())
-                current_row = []
-                spaces_remaining = max_width
-
         # else, go to the next row
         else:
+            rows.append(current_row.copy())
+            current_row = list(word + ' ')
+            spaces_remaining = max_width - len(word) + 1
+
+        if spaces_remaining == 0:
             rows.append(current_row.copy())
             current_row = []
             spaces_remaining = max_width
