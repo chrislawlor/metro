@@ -36,7 +36,9 @@ PALLATES = {
 BLACK_FONT_COLORS = {SUNFLOWER_YELLOW}
 
 
-helvetica = ImageFont.truetype('/Users/stylecaster/Desktop/Helvetica-Bold.ttf', 70)
+HELVETICA_PATH = '/Users/stylecaster/Desktop/Helvetica-Bold.ttf'
+helvetica = ImageFont.truetype(HELVETICA_PATH, 70)
+helvetica_subject = ImageFont.truetype(HELVETICA_PATH, 35)
 
 
 letter_colors = {
@@ -102,6 +104,13 @@ def get_letter(letter, color=None, theme='nyc', background_color=BACKGROUND):
     return image
 
 
+def render_subject(subject, background_color=BACKGROUND):
+    image = Image.new('RGBA', (12*SIZE, SIZE), color=background_color)
+    draw = ImageDraw.Draw(image)
+    draw.text((10, 10), subject, font=helvetica_subject, fill=WHITE)
+    return image
+
+
 def combine_letters(images, background_color=BACKGROUND):
     widths, heights = zip(*(i.size for i in images))
 
@@ -123,8 +132,6 @@ def combine_rows(images, background_color=BACKGROUND):
 
     total_width = max(widths)
     max_height = sum(heights)
-
-
 
     new_im = Image.new('RGBA', (total_width, max_height), color=background_color)
 
@@ -171,8 +178,7 @@ def text_to_rows(text, max_width):
 
 
 def render_rows(rows, theme):
-    images = [render_row(row, theme) for row in rows]
-    return combine_rows(images)
+    return [render_row(row, theme) for row in rows]
 
 
 def to_img_tag(img):
@@ -182,7 +188,13 @@ def to_img_tag(img):
     return tag
 
 
-def render_to_tag(text, theme='nyc'):
+
+def render_to_tag(subject, text, theme='nyc'):
     rows = text_to_rows(text, 12)
     logger.info(rows)
-    return to_img_tag(render_rows(rows, theme=theme))
+    row_images = []
+    if subject:
+        row_images += [render_subject(subject)]
+
+    row_images += render_rows(rows, theme=theme)
+    return to_img_tag(combine_rows(row_images))

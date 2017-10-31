@@ -17,7 +17,10 @@ def home(request):
     if 'text' in request.GET:
         form = ButtonForm(request.GET)
         if form.is_valid():
-            img = render_to_tag(form.cleaned_data['text'], theme=form.cleaned_data['theme'])
+            img = render_to_tag(
+                form.cleaned_data['subject'],
+                form.cleaned_data['text'],
+                theme=form.cleaned_data['theme'])
     else:
         form = ButtonForm()
     return render(request, "home.html", dict(form=form, img=img))
